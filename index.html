@@ -1432,7 +1432,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         let n = String(o.wa || "").replace(/\D/g, "");
         if (n.startsWith("0")) n = "62" + n.slice(1);
         const pay = o.method != "Cash";
-        let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n${fdt(o.ts)}\n${o.cust || "-"}\n${L}\n*PESANAN*\n`;
+        let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n${fdt(o.ts)}\n*${o.cust || "-"}*\n${L}\n*PESANAN*\n`;
         t += o.items.map((i, k) => `${k + 1}. ${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
         t += `\n${L}\n*TOTAL: ${rp(o.total)}*\nMetode: ${o.method}`;
         if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
