@@ -1623,7 +1623,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
         );
       /* ---------- SALES ---------- */
       function chartHTML(l) {
-        const tabs = [["rp", "Rupiah"], ["prod", "Per produk"], ["cust", "Per customer"]];
+        const tabs = [["rp", "Rupiah"], ["prod", "Product"], ["cust", "Customer"]];
         const sh = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(".0", "") + "jt" : n >= 1e3 ? Math.round(n / 1e3) + "rb" : String(n));
         let body = "";
         if (!l.length) body = "<div class=empty>Belum ada data pada periode ini</div>";
@@ -1684,8 +1684,8 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
           )}</b></div><div class=st><small>Average sale</small><b>${rp(
             n ? rev / n : 0
           )}</b></div></div>
-<h2>Diagram penjualan</h2>${chartHTML(l)}
-<h2>History order</h2><div class=card><div style="max-height:483px;overflow-y:auto">${hist(l.slice().reverse())}</div></div>${poSection(po)}`
+<h2>Diagram</h2>${chartHTML(l)}
+<h2>Order History</h2><div class=card><div style="max-height:483px;overflow-y:auto">${hist(l.slice().reverse())}</div></div>${poSection(po)}`
         );
       }
       /* ---------- SETTING ---------- */
