@@ -599,11 +599,72 @@
           padding: 0;
         }
       }
-    .rk{position:absolute;top:-6px;left:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--pr);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--cd)}
-.bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden}.bar i{display:block;height:100%;background:var(--pr);border-radius:99px}
-.sug{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--cd);border:1px solid var(--ln);border-radius:12px;box-shadow:var(--sh);z-index:6;overflow:hidden}.sug:empty{display:none}
-.sug button{display:flex;width:100%;justify-content:space-between;gap:8px;padding:11px 12px;text-align:left;border-bottom:1px solid var(--ln)}.sug button:last-child{border:0}.sug small{color:var(--mu)}
-</style>
+      .rk {
+        position: absolute;
+        top: -6px;
+        left: -6px;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        border-radius: 99px;
+        background: var(--pr);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+        border: 2px solid var(--cd);
+      }
+      .bar {
+        height: 8px;
+        border-radius: 99px;
+        background: var(--bg);
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--pr);
+        border-radius: 99px;
+      }
+      .sug {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        margin-top: 4px;
+        background: var(--cd);
+        border: 1px solid var(--ln);
+        border-radius: 12px;
+        box-shadow: var(--sh);
+        z-index: 6;
+        overflow: hidden;
+      }
+      .sug:empty {
+        display: none;
+      }
+      .sug button {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 11px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--ln);
+      }
+      .sug button:last-child {
+        border: 0;
+      }
+      .sug small {
+        color: var(--mu);
+      }
+      .stk {
+        position: sticky;
+        bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+        z-index: 4;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+      }
+    </style>
   </head>
   <body>
     <div id="app">
@@ -800,12 +861,23 @@
         };
         r.readAsDataURL(f);
       }
-      const ymd = (d) => { const x = new Date(d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
-      let CH = "rp", CR = { from: ymd(Date.now()), to: ymd(Date.now()) };
+      const ymd = (d) => {
+        const x = new Date(d);
+        return (
+          x.getFullYear() +
+          "-" +
+          String(x.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(x.getDate()).padStart(2, "0")
+        );
+      };
+      let CH = "rp",
+        CR = { from: ymd(Date.now()), to: ymd(Date.now()) };
       const dayOf = (t) => new Date(t).toDateString(),
         inRange = (o, d) =>
           d == 0
-            ? o.ts >= new Date(CR.from + "T00:00:00").getTime() && o.ts <= new Date(CR.to + "T23:59:59.999").getTime()
+            ? o.ts >= new Date(CR.from + "T00:00:00").getTime() &&
+              o.ts <= new Date(CR.to + "T23:59:59.999").getTime()
             : d == 1
             ? dayOf(o.ts) == dayOf(Date.now())
             : o.ts >= Date.now() - d * 864e5;
@@ -885,7 +957,11 @@
               ? pop
                   .map(
                     (p, i) =>
-                      `<div class=li><div style="position:relative;flex:none">${thumb(S.prods.find((x) => x.name == p[0]) || {})}<span class=rk>${i + 1}</span></div><div class=sp><b>${esc(p[0])}</b></div><b>${
+                      `<div class=li><div style="position:relative;flex:none">${thumb(
+                        S.prods.find((x) => x.name == p[0]) || {}
+                      )}<span class=rk>${
+                        i + 1
+                      }</span></div><div class=sp><b>${esc(p[0])}</b></div><b>${
                         p[1]
                       } terjual</b></div>`
                   )
@@ -895,12 +971,21 @@
 <h2>Low stock <small style="color:var(--mu);font-weight:400">stok 5 atau kurang</small></h2><div class=card><div style="max-height:345px;overflow-y:auto">${(() => {
             const l = S.prods
               .filter((p) => p.stock <= 5)
-              .sort((a, b) => a.stock - b.stock || a.name.localeCompare(b.name, "id"));
+              .sort(
+                (a, b) =>
+                  a.stock - b.stock || a.name.localeCompare(b.name, "id")
+              );
             return l.length
               ? l
                   .map(
                     (p) =>
-                      `<div class=li>${thumb(p)}<div class=sp><b>${esc(p.name)}</b><small>${esc(p.cat)}</small></div><span class="tg ${p.stock == 0 ? "r" : ""}">${p.stock == 0 ? "Habis" : "Sisa " + p.stock}</span></div>`
+                      `<div class=li>${thumb(p)}<div class=sp><b>${esc(
+                        p.name
+                      )}</b><small>${esc(p.cat)}</small></div><span class="tg ${
+                        p.stock == 0 ? "r" : ""
+                      }">${
+                        p.stock == 0 ? "Habis" : "Sisa " + p.stock
+                      }</span></div>`
                   )
                   .join("")
               : "<div class=empty>Semua stok aman</div>";
@@ -913,7 +998,9 @@
             p.name.toLowerCase().includes(PF.q.toLowerCase())
           ),
           f = PF.f;
-        l.sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }));
+        l.sort((a, b) =>
+          a.name.localeCompare(b.name, "id", { sensitivity: "base" })
+        );
         if (f == "za") l.reverse();
         if (f == "hi") l.sort((a, b) => b.price - a.price);
         if (f == "lo") l.sort((a, b) => a.price - b.price);
@@ -1206,7 +1293,7 @@ ${
               )
               .join(
                 ""
-              )}</select></div></div><div id=ol>${olist()}</div></div><button id=cb class=bt onclick="D.step=2;render()" ${
+              )}</select></div></div><div id=ol>${olist()}</div></div><button id=cb class="bt stk" onclick="D.step=2;render()" ${
               Object.keys(D.cart).length ? "" : "disabled"
             }>Continue to Quantity</button>`
           );
@@ -1215,7 +1302,9 @@ ${
           return (
             h +
             stepBar() +
-            `<div class=card><b>Customer info</b><label>Customer name</label><div style="position:relative"><input id=ci autocomplete=off value="${esc(D.cust)}" oninput="custIn(this.value)" onblur="setTimeout(hideSug,200)"><div id=cs class=sug></div></div><label>Jenis customer</label><div class=seg>${[
+            `<div class=card><b>Customer info</b><label>Customer name</label><div style="position:relative"><input id=ci autocomplete=off value="${esc(
+              D.cust
+            )}" oninput="custIn(this.value)" onblur="setTimeout(hideSug,200)"><div id=cs class=sug></div></div><label>Jenis customer</label><div class=seg>${[
               "Umum",
               "Reseller",
             ]
@@ -1227,7 +1316,9 @@ ${
               )
               .join(
                 ""
-              )}</div><label>WhatsApp number</label><input type=tel inputmode=tel id=cw placeholder="08xxxxxxxxxx" value="${esc(D.wa)}" oninput="D.wa=this.value"></div>
+              )}</div><label>WhatsApp number</label><input type=tel inputmode=tel id=cw placeholder="08xxxxxxxxxx" value="${esc(
+              D.wa
+            )}" oninput="D.wa=this.value"></div>
 <div class=card style="margin-top:14px"><div class=row><b class=sp>Items</b><button style="color:var(--bad);font-size:13px" onclick="D.cart={};D.step=1;render()">Clear cart</button></div>${
               it
                 .map(
@@ -1377,7 +1468,13 @@ ${o.items
                 o.cash
               )}</span></div><div class=rw><span>Kembali</span><span>${rp(
                 o.change
-              )}</span></div>`
+              )}</span></div>${
+                o.cash < o.total
+                  ? "<div class=rw><span>Kurang</span><span>" +
+                    rp(o.total - o.cash) +
+                    "</span></div>"
+                  : ""
+              }`
             : ""
         }
 ${
@@ -1391,17 +1488,102 @@ ${
             ? `<hr><img src="${s.qris}" style="width:60%;display:block;margin:auto">`
             : ""
         }<hr><div class=c>Terima kasih</div></div>
-${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
+${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${
+          ed
+            ? `<button class=bt2 style="color:var(--pr);border-color:var(--pr)" onclick=addMenu()>${ic(
+                "plus",
+                16
+              )} Tambah menu</button>`
+            : ""
+        }<div class=acts>${
           R.done
             ? "<button class=bt onclick=rDone()>Selesai</button>"
             : `<button class=bt onclick=rPay()>Payment</button><button class=bt2 onclick=rCancel()>Cancel</button>`
-        }<button class=bt2 onclick=rWA()>${ic("wa",16)} Share to WhatsApp</button><button class=bt2 onclick=rPDF()>${ic("print",16)} Cetak / Simpan PDF</button></div></div></div>`;
+        }<button class=bt2 onclick=rWA()>${ic(
+          "wa",
+          16
+        )} Share to WhatsApp</button><button class=bt2 onclick=rPDF()>${ic(
+          "print",
+          16
+        )} Cetak / Simpan PDF</button></div></div></div>`;
+      }
+      /* ---------- TAMBAH MENU PADA ORDER YANG DIEDIT ---------- */
+      let AM = "";
+      function availQ(p) {
+        const st = S.orders.find((x) => x.id == R.o.id),
+          old = ((st && st.items.find((i) => i.pid == p.id)) || {}).qty || 0,
+          cur = (R.o.items.find((i) => i.pid == p.id) || {}).qty || 0;
+        return p.stock + old - cur;
+      }
+      function addMenu() {
+        AM = "";
+        $(
+          "#dlg"
+        ).innerHTML = `<div class=ov style="align-items:center"><div class=dlg style="max-width:400px;max-height:88vh;overflow:auto"><h3>Tambah menu</h3><input id=am placeholder="Cari produk" oninput="AM=this.value;drawAM()"><div id=aml style="max-height:46vh;overflow-y:auto;margin-top:8px"></div><button class=bt onclick=dc()>Selesai</button></div></div>`;
+        drawAM();
+      }
+      function drawAM() {
+        const o = R.o,
+          q = AM.trim().toLowerCase();
+        const l = S.prods
+          .filter((p) => p.name.toLowerCase().includes(q))
+          .sort((a, b) => a.name.localeCompare(b.name, "id"));
+        $("#aml").innerHTML = l.length
+          ? l
+              .map((p) => {
+                const it = o.items.find((i) => i.pid == p.id),
+                  av = availQ(p);
+                return `<div class=li>${thumb(p)}<div class=sp><b>${esc(
+                  p.name
+                )}</b><small>${esc(p.cat)} · Stok ${av} · ${rp(
+                  p.price
+                )}</small></div>${
+                  it ? `<span class=tg>${it.qty}</span>` : ""
+                }<button class=ia style="background:var(--pr);color:#fff" ${
+                  av <= 0 ? "disabled" : ""
+                } onclick="addItem('${p.id}')">${ic(
+                  "plus",
+                  16
+                )}</button></div>`;
+              })
+              .join("")
+          : "<div class=empty>Produk tidak ditemukan</div>";
+      }
+      function addItem(id) {
+        const p = S.prods.find((x) => x.id == id),
+          o = R.o;
+        if (!p || availQ(p) <= 0) return toast("Stok tidak cukup");
+        const it = o.items.find((i) => i.pid == id);
+        if (it) it.qty++;
+        else {
+          const cq =
+              sum(
+                o.items.filter((i) => i.cat == p.cat),
+                (i) => i.qty
+              ) + 1,
+            rs =
+              o.type == "Reseller" ||
+              S.rules.some((r) => (!r.cat || r.cat == p.cat) && cq >= r.min);
+          o.items.push({
+            pid: p.id,
+            name: p.name,
+            cat: p.cat,
+            qty: 1,
+            price: rs && p.reseller ? p.reseller : p.price,
+            rs: rs && p.reseller < p.price,
+          });
+        }
+        drawR();
+        drawAM();
       }
       function rq(n, d) {
-        const i = R.o.items[n];
+        const i = R.o.items[n],
+          p = S.prods.find((x) => x.id == i.pid);
+        if (d > 0 && p && availQ(p) <= 0) return toast("Stok tidak cukup");
         i.qty += d;
         if (i.qty < 1) R.o.items.splice(n, 1);
         drawR();
+        if ($("#aml")) drawAM();
       }
       function rPay() {
         const o = R.o;
@@ -1438,18 +1620,55 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         if (R.mode == "new") D = newD();
         go("dash");
       };
-      const getDL=async()=>{try{if(window.claude&&claude.use)return await claude.use("downloads")}catch(e){}return{save:async({filename,data})=>{const b=data instanceof Blob?data:new Blob([data]),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}}};
+      const getDL = async () => {
+        try {
+          if (window.claude && claude.use) return await claude.use("downloads");
+        } catch (e) {}
+        return {
+          save: async ({ filename, data }) => {
+            const b = data instanceof Blob ? data : new Blob([data]),
+              u = URL.createObjectURL(b),
+              a = document.createElement("a");
+            a.href = u;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(u), 4000);
+          },
+        };
+      };
       function rTxt() {
-        const o = R.o, s = S.set, L = "━━━━━━━━━━━━━━";
+        const o = R.o,
+          s = S.set,
+          L = "━━━━━━━━━━━━━━";
         let n = String(o.wa || "").replace(/\D/g, "");
         if (n.startsWith("0")) n = "62" + n.slice(1);
         const pay = o.method != "Cash";
-        let t = `🧾 *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n🗓 ${fdt(o.ts)}\n👤 ${o.cust || "-"}\n${L}\n*PESANAN*\n`;
-        t += o.items.map((i, k) => `${k + 1}. ${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
-        t += `\n${L}\n💰 *TOTAL: ${rp(o.total)}*\nMetode: ${o.method}`;
-        if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
-        if (pay && s.qris) t += `\n${L}\n📱 *QRIS*\nScan gambar QRIS yang dikirim bersama pesan ini.`;
-        if (pay && s.banks.length) t += `\n${L}\n🏦 *TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
+        let t =
+          `🧾 *${s.name}*\n` +
+          (s.addr ? `📍 ${s.addr}\n` : "") +
+          `${L}\nStruk #${o.id}\n ${fdt(o.ts)}\n *${
+            o.cust || "-"
+          }*\n${L}\n*PESANAN*\n`;
+        t += o.items
+          .map(
+            (i, k) =>
+              `${k + 1}. ${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(
+                i.qty * i.price
+              )}*`
+          )
+          .join("\n");
+        t += `\n${L}\n *TOTAL: ${rp(o.total)}*\nMetode: ${o.method}`;
+        if (o.method == "Cash")
+          t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
+        // if (pay && s.qris) t += `\n${L}\n📱 *QRIS*\nScan gambar QRIS yang dikirim bersama pesan ini.`;
+        if (pay && s.banks.length)
+          t +=
+            `\n${L}\n *TRANSFER KE*\n` +
+            s.banks
+              .map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`)
+              .join("\n\n");
         t += `\n${L}\nTerima kasih 🙏`;
         return { n, t };
       }
@@ -1541,18 +1760,33 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         }
       }
       async function rWA() {
-        const { n, t } = rTxt(), q = S.set.qris, wa = () => window.open(`https://wa.me/${n}?text=${encodeURIComponent(t)}`, "_blank");
+        const { n, t } = rTxt(),
+          q = S.set.qris,
+          wa = () =>
+            window.open(
+              `https://wa.me/${n}?text=${encodeURIComponent(t)}`,
+              "_blank"
+            );
         if (R.o.method == "Cash" || !q) return wa();
         let bl;
-        try { bl = await (await fetch(q)).blob(); } catch (e) { return wa(); }
+        try {
+          bl = await (await fetch(q)).blob();
+        } catch (e) {
+          return wa();
+        }
         const f = new File([bl], "QRIS.jpg", { type: bl.type || "image/jpeg" });
         try {
           if (navigator.canShare && navigator.canShare({ files: [f] })) {
             await navigator.share({ files: [f], text: t });
             return;
           }
-        } catch (e) { if (e.name == "AbortError") return; }
-        try { const dl = await getDL(); await dl.save({ filename: "QRIS.jpg", data: bl }); } catch (e) {}
+        } catch (e) {
+          if (e.name == "AbortError") return;
+        }
+        try {
+          const dl = await getDL();
+          await dl.save({ filename: "QRIS.jpg", data: bl });
+        } catch (e) {}
         toast("Lampirkan gambar QRIS yang tersimpan di chat");
         wa();
       }
@@ -1579,34 +1813,123 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         );
       /* ---------- SALES ---------- */
       function chartHTML(l) {
-        const tabs = [["rp", "Rupiah"], ["prod", "Per produk"], ["cust", "Per customer"]];
-        const sh = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(".0", "") + "jt" : n >= 1e3 ? Math.round(n / 1e3) + "rb" : String(n));
+        const tabs = [
+          ["rp", "Rupiah"],
+          ["prod", "Per produk"],
+          ["cust", "Per customer"],
+        ];
+        const sh = (n) =>
+          n >= 1e6
+            ? (n / 1e6).toFixed(1).replace(".0", "") + "jt"
+            : n >= 1e3
+            ? Math.round(n / 1e3) + "rb"
+            : String(n);
         let body = "";
-        if (!l.length) body = "<div class=empty>Belum ada data pada periode ini</div>";
+        if (!l.length)
+          body = "<div class=empty>Belum ada data pada periode ini</div>";
         else if (CH == "rp") {
           const hour = RG == 1,
-            span = RG == 0 ? Math.round((new Date(CR.to) - new Date(CR.from)) / 864e5) + 1 : RG,
+            span =
+              RG == 0
+                ? Math.round((new Date(CR.to) - new Date(CR.from)) / 864e5) + 1
+                : RG,
             mon = !hour && span > 62,
             m = new Map();
-          l.slice().sort((a, b) => a.ts - b.ts).forEach((o) => {
-            const d = new Date(o.ts);
-            const k = hour ? String(d.getHours()).padStart(2, "0") + ":00" : mon ? d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" }) : d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
-            m.set(k, (m.get(k) || 0) + o.total);
-          });
+          l.slice()
+            .sort((a, b) => a.ts - b.ts)
+            .forEach((o) => {
+              const d = new Date(o.ts);
+              const k = hour
+                ? String(d.getHours()).padStart(2, "0") + ":00"
+                : mon
+                ? d.toLocaleDateString("id-ID", {
+                    month: "short",
+                    year: "2-digit",
+                  })
+                : d.toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                  });
+              m.set(k, (m.get(k) || 0) + o.total);
+            });
           const mx = Math.max(...m.values(), 1);
-          body = '<div style="display:flex;align-items:flex-end;gap:8px;overflow-x:auto;padding-bottom:4px">' +
-            [...m].map(([k, v]) => '<div style="flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:170px"><small style="font-size:10px;color:var(--mu)">' + sh(v) + '</small><div style="width:70%;max-width:34px;border-radius:8px 8px 0 0;background:var(--pr);height:' + Math.max(3, (v / mx) * 110) + 'px;margin:4px 0"></div><small style="font-size:10px;color:var(--mu);white-space:nowrap">' + k + "</small></div>").join("") +
-            '</div><small style="color:var(--mu)">Total ' + rp(sum(l, (o) => o.total)) + " · per " + (hour ? "jam" : mon ? "bulan" : "hari") + "</small>";
+          body =
+            '<div style="display:flex;align-items:flex-end;gap:8px;overflow-x:auto;padding-bottom:4px">' +
+            [...m]
+              .map(
+                ([k, v]) =>
+                  '<div style="flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:170px"><small style="font-size:10px;color:var(--mu)">' +
+                  sh(v) +
+                  '</small><div style="width:70%;max-width:34px;border-radius:8px 8px 0 0;background:var(--pr);height:' +
+                  Math.max(3, (v / mx) * 110) +
+                  'px;margin:4px 0"></div><small style="font-size:10px;color:var(--mu);white-space:nowrap">' +
+                  k +
+                  "</small></div>"
+              )
+              .join("") +
+            '</div><small style="color:var(--mu)">Total ' +
+            rp(sum(l, (o) => o.total)) +
+            " · per " +
+            (hour ? "jam" : mon ? "bulan" : "hari") +
+            "</small>";
         } else {
           const m = new Map();
           if (CH == "prod")
-            l.forEach((o) => o.items.forEach((i) => { const e = m.get(i.name) || { n: i.name, v: 0, r: 0 }; e.v += i.qty; e.r += i.qty * i.price; m.set(i.name, e); }));
+            l.forEach((o) =>
+              o.items.forEach((i) => {
+                const e = m.get(i.name) || { n: i.name, v: 0, r: 0 };
+                e.v += i.qty;
+                e.r += i.qty * i.price;
+                m.set(i.name, e);
+              })
+            );
           else
-            l.forEach((o) => { const nm = (o.cust || "").trim() || "Umum", k = nm.toLowerCase(), e = m.get(k) || { n: nm, v: 0, r: 0 }; e.v += o.total; e.r += 1; m.set(k, e); });
-          const rows = [...m.values()].sort((a, b) => b.v - a.v).slice(0, 10), mx = Math.max(...rows.map((r) => r.v), 1);
-          body = '<div style="max-height:340px;overflow-y:auto">' + rows.map((r) => '<div style="margin:10px 0"><div class=row><span class=sp style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.n) + '</span><b style="font-size:12px">' + (CH == "prod" ? r.v + " terjual · " + rp(r.r) : rp(r.v) + " · " + r.r + " transaksi") + '</b></div><div class=bar><i style="width:' + Math.max(3, (r.v / mx) * 100) + '%"></i></div></div>').join("") + "</div>";
+            l.forEach((o) => {
+              const nm = (o.cust || "").trim() || "Umum",
+                k = nm.toLowerCase(),
+                e = m.get(k) || { n: nm, v: 0, r: 0 };
+              e.v += o.total;
+              e.r += 1;
+              m.set(k, e);
+            });
+          const rows = [...m.values()].sort((a, b) => b.v - a.v).slice(0, 10),
+            mx = Math.max(...rows.map((r) => r.v), 1);
+          body =
+            '<div style="max-height:340px;overflow-y:auto">' +
+            rows
+              .map(
+                (r) =>
+                  '<div style="margin:10px 0"><div class=row><span class=sp style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+                  esc(r.n) +
+                  '</span><b style="font-size:12px">' +
+                  (CH == "prod"
+                    ? r.v + " terjual · " + rp(r.r)
+                    : rp(r.v) + " · " + r.r + " transaksi") +
+                  '</b></div><div class=bar><i style="width:' +
+                  Math.max(3, (r.v / mx) * 100) +
+                  '%"></i></div></div>'
+              )
+              .join("") +
+            "</div>";
         }
-        return '<div class=card><div class=seg style="margin-bottom:12px">' + tabs.map((t) => '<button class="' + (CH == t[0] ? "on" : "") + '" onclick="CH=\'' + t[0] + '\';render()">' + t[1] + "</button>").join("") + "</div>" + body + "</div>";
+        return (
+          '<div class=card><div class=seg style="margin-bottom:12px">' +
+          tabs
+            .map(
+              (t) =>
+                '<button class="' +
+                (CH == t[0] ? "on" : "") +
+                '" onclick="CH=\'' +
+                t[0] +
+                "';render()\">" +
+                t[1] +
+                "</button>"
+            )
+            .join("") +
+          "</div>" +
+          body +
+          "</div>"
+        );
       }
       function vSales() {
         const l = S.orders.filter((o) => inRange(o, RG)),
@@ -1727,7 +2050,17 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
               )
               .join("") || "<div class=empty>Belum ada aturan</div>"
           }</div><small style="color:var(--mu);display:block;margin-top:10px">Customer tipe Reseller selalu memakai harga reseller.</small></div>
-<div class=card style="margin-top:14px"><b>Database Google Sheet</b><small style="color:var(--mu);display:block;margin:6px 0">Data tersimpan di Google Sheet dan sinkron antar perangkat.</small><label>URL Web App (Apps Script)</label><input id=cu value="${esc(CFG.url)}" placeholder="https://script.google.com/macros/s/.../exec"><label>Kode rahasia</label><input id=ck type=password value="${esc(CFG.key)}"><button class=bt onclick=cloudConnect()>Hubungkan &amp; Sinkron</button>${CFG.url?`<button class=bt2 onclick=cloudPull()>Sinkron sekarang</button><button class=bt2 onclick=cloudOff()>Putuskan</button>`:''}<small id=syncst style="display:block;margin-top:10px;color:var(--mu)">${esc(SYNC.msg)}</small></div>
+<div class=card style="margin-top:14px"><b>Database Google Sheet</b><small style="color:var(--mu);display:block;margin:6px 0">Data tersimpan di Google Sheet dan sinkron antar perangkat.</small><label>URL Web App (Apps Script)</label><input id=cu value="${esc(
+            CFG.url
+          )}" placeholder="https://script.google.com/macros/s/.../exec"><label>Kode rahasia</label><input id=ck type=password value="${esc(
+            CFG.key
+          )}"><button class=bt onclick=cloudConnect()>Hubungkan &amp; Sinkron</button>${
+            CFG.url
+              ? `<button class=bt2 onclick=cloudPull()>Sinkron sekarang</button><button class=bt2 onclick=cloudOff()>Putuskan</button>`
+              : ""
+          }<small id=syncst style="display:block;margin-top:10px;color:var(--mu)">${esc(
+            SYNC.msg
+          )}</small></div>
 <div class=card style="margin-top:14px"><b>Backup database</b><small style="color:var(--mu);display:block;margin:6px 0">${
             bakTs()
               ? "Backup lokal terakhir: " + fdt(bakTs())
@@ -1861,31 +2194,87 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
       let SG = [];
       function custList() {
         const m = new Map();
-        S.orders.slice().sort((a, b) => a.ts - b.ts).forEach((o) => {
-          const n = (o.cust || "").trim();
-          if (!n) return;
-          const k = n.toLowerCase(), e = m.get(k) || { name: n, wa: "", n: 0 };
-          e.name = n; if (o.wa) e.wa = o.wa; e.n++; m.set(k, e);
-        });
+        S.orders
+          .slice()
+          .sort((a, b) => a.ts - b.ts)
+          .forEach((o) => {
+            const n = (o.cust || "").trim();
+            if (!n) return;
+            const k = n.toLowerCase(),
+              e = m.get(k) || { name: n, wa: "", n: 0 };
+            e.name = n;
+            if (o.wa) e.wa = o.wa;
+            e.n++;
+            m.set(k, e);
+          });
         return [...m.values()];
       }
-      const hideSug = () => { const b = $("#cs"); if (b) b.innerHTML = ""; };
+      const hideSug = () => {
+        const b = $("#cs");
+        if (b) b.innerHTML = "";
+      };
       function custIn(v) {
         D.cust = v;
-        const q = v.trim().toLowerCase(), box = $("#cs"), all = custList();
+        const q = v.trim().toLowerCase(),
+          box = $("#cs"),
+          all = custList();
         const ex = all.find((c) => c.name.toLowerCase() == q);
-        if (ex && ex.wa && !D.wa) { D.wa = ex.wa; const w = $("#cw"); if (w) w.value = ex.wa; }
-        SG = q ? all.filter((c) => c.name.toLowerCase().includes(q)).sort((a, b) => (b.name.toLowerCase().startsWith(q) ? 1 : 0) - (a.name.toLowerCase().startsWith(q) ? 1 : 0) || b.n - a.n).slice(0, 6) : [];
-        box.innerHTML = SG.map((c, i) => "<button onclick=\"pickCust(" + i + ")\"><b>" + esc(c.name) + "</b><small>" + esc(c.wa || "") + "</small></button>").join("");
+        if (ex && ex.wa && !D.wa) {
+          D.wa = ex.wa;
+          const w = $("#cw");
+          if (w) w.value = ex.wa;
+        }
+        SG = q
+          ? all
+              .filter((c) => c.name.toLowerCase().includes(q))
+              .sort(
+                (a, b) =>
+                  (b.name.toLowerCase().startsWith(q) ? 1 : 0) -
+                    (a.name.toLowerCase().startsWith(q) ? 1 : 0) || b.n - a.n
+              )
+              .slice(0, 6)
+          : [];
+        box.innerHTML = SG.map(
+          (c, i) =>
+            '<button onclick="pickCust(' +
+            i +
+            ')"><b>' +
+            esc(c.name) +
+            "</b><small>" +
+            esc(c.wa || "") +
+            "</small></button>"
+        ).join("");
       }
-      function pickCust(i) { const c = SG[i]; if (!c) return; D.cust = c.name; if (c.wa) D.wa = c.wa; render(); }
+      function pickCust(i) {
+        const c = SG[i];
+        if (!c) return;
+        D.cust = c.name;
+        if (c.wa) D.wa = c.wa;
+        render();
+      }
       /* ---------- GOOGLE SHEET SYNC ---------- */
       let CFG = { url: "", key: "" };
-      try { CFG = JSON.parse(localStorage.getItem("pos_cfg")) || CFG; } catch (e) {}
-      const SYNC = { ts: +localStorage.getItem("pos_ts") || 0, t: null, busy: false, dirty: false, msg: CFG.url ? "Terhubung" : "Belum terhubung" };
-      const setSt = (m) => { SYNC.msg = m; const e = $("#syncst"); if (e) e.textContent = m; };
+      try {
+        CFG = JSON.parse(localStorage.getItem("pos_cfg")) || CFG;
+      } catch (e) {}
+      const SYNC = {
+        ts: +localStorage.getItem("pos_ts") || 0,
+        t: null,
+        busy: false,
+        dirty: false,
+        msg: CFG.url ? "Terhubung" : "Belum terhubung",
+      };
+      const setSt = (m) => {
+        SYNC.msg = m;
+        const e = $("#syncst");
+        if (e) e.textContent = m;
+      };
       async function api(act, body = {}) {
-        const r = await fetch(CFG.url, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ act, key: CFG.key, ...body }) });
+        const r = await fetch(CFG.url, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ act, key: CFG.key, ...body }),
+        });
         const j = await r.json();
         if (j.error) throw new Error(j.error);
         return j;
@@ -1898,12 +2287,25 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         setSt("Menyimpan…");
       }
       async function doPush() {
-        if (SYNC.busy) { SYNC.t = setTimeout(doPush, 800); return; }
-        SYNC.busy = true; SYNC.dirty = false;
+        if (SYNC.busy) {
+          SYNC.t = setTimeout(doPush, 800);
+          return;
+        }
+        SYNC.busy = true;
+        SYNC.dirty = false;
         try {
-          const r = await api("push", { base: SYNC.ts, ts: S.mt, data: JSON.stringify(S) });
-          if (r.conflict) { SYNC.busy = false; toast("Data diubah perangkat lain, memuat ulang…"); return cloudPull(); }
-          SYNC.ts = r.ts; localStorage.setItem("pos_ts", r.ts);
+          const r = await api("push", {
+            base: SYNC.ts,
+            ts: S.mt,
+            data: JSON.stringify(S),
+          });
+          if (r.conflict) {
+            SYNC.busy = false;
+            toast("Data diubah perangkat lain, memuat ulang…");
+            return cloudPull();
+          }
+          SYNC.ts = r.ts;
+          localStorage.setItem("pos_ts", r.ts);
           setSt("Tersinkron ✓ " + new Date().toLocaleTimeString("id-ID"));
         } catch (e) {
           setSt("Gagal sinkron, dicoba lagi otomatis");
@@ -1917,26 +2319,51 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         setSt("Memuat data…");
         try {
           const r = await api("pull");
-          if (r.empty) { SYNC.ts = 0; cloudPush(); }
-          else if (r.ts > SYNC.ts) {
-            S = { ...def(), ...JSON.parse(r.data) }; fix(); applyTheme();
-            SYNC.ts = r.ts; localStorage.setItem("pos_ts", r.ts);
-            try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) {}
+          if (r.empty) {
+            SYNC.ts = 0;
+            cloudPush();
+          } else if (r.ts > SYNC.ts) {
+            S = { ...def(), ...JSON.parse(r.data) };
+            fix();
+            applyTheme();
+            SYNC.ts = r.ts;
+            localStorage.setItem("pos_ts", r.ts);
+            try {
+              localStorage.setItem(K, JSON.stringify(S));
+            } catch (e) {}
             setSt("Tersinkron ✓ " + new Date().toLocaleTimeString("id-ID"));
             render();
-          } else { setSt("Tersinkron ✓ " + new Date().toLocaleTimeString("id-ID")); if (S.mt > r.ts) cloudPush(); }
-        } catch (e) { setSt("Tidak bisa terhubung: " + e.message); }
+          } else {
+            setSt("Tersinkron ✓ " + new Date().toLocaleTimeString("id-ID"));
+            if (S.mt > r.ts) cloudPush();
+          }
+        } catch (e) {
+          setSt("Tidak bisa terhubung: " + e.message);
+        }
       }
       async function cloudConnect() {
-        const u = $("#cu").value.trim(), k = $("#ck").value.trim();
-        if (!/^https:\/\/script\.google\.com\//.test(u)) return toast("URL Web App tidak valid");
+        const u = $("#cu").value.trim(),
+          k = $("#ck").value.trim();
+        if (!/^https:\/\/script\.google\.com\//.test(u))
+          return toast("URL Web App tidak valid");
         if (!k) return toast("Isi kode rahasia");
-        CFG = { url: u, key: k }; SYNC.ts = 0;
-        localStorage.setItem("pos_cfg", JSON.stringify(CFG)); localStorage.removeItem("pos_ts");
-        await cloudPull(); render();
+        CFG = { url: u, key: k };
+        SYNC.ts = 0;
+        localStorage.setItem("pos_cfg", JSON.stringify(CFG));
+        localStorage.removeItem("pos_ts");
+        await cloudPull();
+        render();
       }
-      const cloudOff = () => { CFG = { url: "", key: "" }; localStorage.removeItem("pos_cfg"); SYNC.msg = "Belum terhubung"; render(); };
-      document.addEventListener("visibilitychange", () => { if (!document.hidden && CFG.url && !SYNC.dirty && !SYNC.busy) cloudPull(); });
+      const cloudOff = () => {
+        CFG = { url: "", key: "" };
+        localStorage.removeItem("pos_cfg");
+        SYNC.msg = "Belum terhubung";
+        render();
+      };
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && CFG.url && !SYNC.dirty && !SYNC.busy)
+          cloudPull();
+      });
       if (CFG.url) cloudPull();
       render();
     </script>
