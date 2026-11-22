@@ -599,7 +599,11 @@
           padding: 0;
         }
       }
-    </style>
+    .rk{position:absolute;top:-6px;left:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--pr);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--cd)}
+.bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden}.bar i{display:block;height:100%;background:var(--pr);border-radius:99px}
+.sug{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--cd);border:1px solid var(--ln);border-radius:12px;box-shadow:var(--sh);z-index:6;overflow:hidden}.sug:empty{display:none}
+.sug button{display:flex;width:100%;justify-content:space-between;gap:8px;padding:11px 12px;text-align:left;border-bottom:1px solid var(--ln)}.sug button:last-child{border:0}.sug small{color:var(--mu)}
+</style>
   </head>
   <body>
     <div id="app">
@@ -796,9 +800,13 @@
         };
         r.readAsDataURL(f);
       }
+      const ymd = (d) => { const x = new Date(d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
+      let CH = "rp", CR = { from: ymd(Date.now()), to: ymd(Date.now()) };
       const dayOf = (t) => new Date(t).toDateString(),
         inRange = (o, d) =>
-          d == 1
+          d == 0
+            ? o.ts >= new Date(CR.from + "T00:00:00").getTime() && o.ts <= new Date(CR.to + "T23:59:59.999").getTime()
+            : d == 1
             ? dayOf(o.ts) == dayOf(Date.now())
             : o.ts >= Date.now() - d * 864e5;
       const thumb = (p) =>
@@ -877,18 +885,26 @@
               ? pop
                   .map(
                     (p, i) =>
-                      `<div class=li><div class=th style="font-weight:800">${
-                        i + 1
-                      }</div><div class=sp><b>${esc(p[0])}</b></div><b>${
+                      `<div class=li><div style="position:relative;flex:none">${thumb(S.prods.find((x) => x.name == p[0]) || {})}<span class=rk>${i + 1}</span></div><div class=sp><b>${esc(p[0])}</b></div><b>${
                         p[1]
                       } terjual</b></div>`
                   )
                   .join("")
               : "<div class=empty>Belum ada penjualan</div>"
           }</div>
-<h2>History order</h2><div class=card>${hist(
-            S.orders.slice(-10).reverse()
-          )}</div>`
+<h2>Low stock <small style="color:var(--mu);font-weight:400">stok 5 atau kurang</small></h2><div class=card><div style="max-height:345px;overflow-y:auto">${(() => {
+            const l = S.prods
+              .filter((p) => p.stock <= 5)
+              .sort((a, b) => a.stock - b.stock || a.name.localeCompare(b.name, "id"));
+            return l.length
+              ? l
+                  .map(
+                    (p) =>
+                      `<div class=li>${thumb(p)}<div class=sp><b>${esc(p.name)}</b><small>${esc(p.cat)}</small></div><span class="tg ${p.stock == 0 ? "r" : ""}">${p.stock == 0 ? "Habis" : "Sisa " + p.stock}</span></div>`
+                  )
+                  .join("")
+              : "<div class=empty>Semua stok aman</div>";
+          })()}</div></div>`
         );
       }
       /* ---------- PRODUCT ---------- */
@@ -1199,9 +1215,7 @@ ${
           return (
             h +
             stepBar() +
-            `<div class=card><b>Customer info</b><label>Customer name</label><input value="${esc(
-              D.cust
-            )}" oninput="D.cust=this.value"><label>Jenis customer</label><div class=seg>${[
+            `<div class=card><b>Customer info</b><label>Customer name</label><div style="position:relative"><input id=ci autocomplete=off value="${esc(D.cust)}" oninput="custIn(this.value)" onblur="setTimeout(hideSug,200)"><div id=cs class=sug></div></div><label>Jenis customer</label><div class=seg>${[
               "Umum",
               "Reseller",
             ]
@@ -1213,9 +1227,7 @@ ${
               )
               .join(
                 ""
-              )}</div><label>WhatsApp number</label><input type=tel inputmode=tel placeholder="08xxxxxxxxxx" value="${esc(
-              D.wa
-            )}" oninput="D.wa=this.value"></div>
+              )}</div><label>WhatsApp number</label><input type=tel inputmode=tel id=cw placeholder="08xxxxxxxxxx" value="${esc(D.wa)}" oninput="D.wa=this.value"></div>
 <div class=card style="margin-top:14px"><div class=row><b class=sp>Items</b><button style="color:var(--bad);font-size:13px" onclick="D.cart={};D.step=1;render()">Clear cart</button></div>${
               it
                 .map(
@@ -1432,12 +1444,12 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
         let n = String(o.wa || "").replace(/\D/g, "");
         if (n.startsWith("0")) n = "62" + n.slice(1);
         const pay = o.method != "Cash";
-        let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n${fdt(o.ts)}\n*${o.cust || "-"}*\n${L}\n*PESANAN*\n`;
+        let t = `🧾 *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n🗓 ${fdt(o.ts)}\n👤 ${o.cust || "-"}\n${L}\n*PESANAN*\n`;
         t += o.items.map((i, k) => `${k + 1}. ${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
-        t += `\n${L}\n*TOTAL: ${rp(o.total)}*\nMetode: ${o.method}`;
+        t += `\n${L}\n💰 *TOTAL: ${rp(o.total)}*\nMetode: ${o.method}`;
         if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
-        // if (pay && s.qris) t += `\n${L}\n *QRIS*\nScan gambar QRIS yang dikirim bersama pesan ini.`;
-        if (pay && s.banks.length) t += `\n${L}\n*TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
+        if (pay && s.qris) t += `\n${L}\n📱 *QRIS*\nScan gambar QRIS yang dikirim bersama pesan ini.`;
+        if (pay && s.banks.length) t += `\n${L}\n🏦 *TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
         t += `\n${L}\nTerima kasih 🙏`;
         return { n, t };
       }
@@ -1566,16 +1578,51 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
           1
         );
       /* ---------- SALES ---------- */
+      function chartHTML(l) {
+        const tabs = [["rp", "Rupiah"], ["prod", "Per produk"], ["cust", "Per customer"]];
+        const sh = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(".0", "") + "jt" : n >= 1e3 ? Math.round(n / 1e3) + "rb" : String(n));
+        let body = "";
+        if (!l.length) body = "<div class=empty>Belum ada data pada periode ini</div>";
+        else if (CH == "rp") {
+          const hour = RG == 1,
+            span = RG == 0 ? Math.round((new Date(CR.to) - new Date(CR.from)) / 864e5) + 1 : RG,
+            mon = !hour && span > 62,
+            m = new Map();
+          l.slice().sort((a, b) => a.ts - b.ts).forEach((o) => {
+            const d = new Date(o.ts);
+            const k = hour ? String(d.getHours()).padStart(2, "0") + ":00" : mon ? d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" }) : d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+            m.set(k, (m.get(k) || 0) + o.total);
+          });
+          const mx = Math.max(...m.values(), 1);
+          body = '<div style="display:flex;align-items:flex-end;gap:8px;overflow-x:auto;padding-bottom:4px">' +
+            [...m].map(([k, v]) => '<div style="flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:170px"><small style="font-size:10px;color:var(--mu)">' + sh(v) + '</small><div style="width:70%;max-width:34px;border-radius:8px 8px 0 0;background:var(--pr);height:' + Math.max(3, (v / mx) * 110) + 'px;margin:4px 0"></div><small style="font-size:10px;color:var(--mu);white-space:nowrap">' + k + "</small></div>").join("") +
+            '</div><small style="color:var(--mu)">Total ' + rp(sum(l, (o) => o.total)) + " · per " + (hour ? "jam" : mon ? "bulan" : "hari") + "</small>";
+        } else {
+          const m = new Map();
+          if (CH == "prod")
+            l.forEach((o) => o.items.forEach((i) => { const e = m.get(i.name) || { n: i.name, v: 0, r: 0 }; e.v += i.qty; e.r += i.qty * i.price; m.set(i.name, e); }));
+          else
+            l.forEach((o) => { const nm = (o.cust || "").trim() || "Umum", k = nm.toLowerCase(), e = m.get(k) || { n: nm, v: 0, r: 0 }; e.v += o.total; e.r += 1; m.set(k, e); });
+          const rows = [...m.values()].sort((a, b) => b.v - a.v).slice(0, 10), mx = Math.max(...rows.map((r) => r.v), 1);
+          body = '<div style="max-height:340px;overflow-y:auto">' + rows.map((r) => '<div style="margin:10px 0"><div class=row><span class=sp style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.n) + '</span><b style="font-size:12px">' + (CH == "prod" ? r.v + " terjual · " + rp(r.r) : rp(r.v) + " · " + r.r + " transaksi") + '</b></div><div class=bar><i style="width:' + Math.max(3, (r.v / mx) * 100) + '%"></i></div></div>').join("") + "</div>";
+        }
+        return '<div class=card><div class=seg style="margin-bottom:12px">' + tabs.map((t) => '<button class="' + (CH == t[0] ? "on" : "") + '" onclick="CH=\'' + t[0] + '\';render()">' + t[1] + "</button>").join("") + "</div>" + body + "</div>";
+      }
       function vSales() {
         const l = S.orders.filter((o) => inRange(o, RG)),
           rev = sum(l, (o) => o.total),
-          n = l.length;
+          n = l.length,
+          custom =
+            RG == 0
+              ? `<div class=row style="margin-top:10px"><input type=date value="${CR.from}" onchange="CR.from=this.value;if(CR.from>CR.to)CR.to=CR.from;render()"><span>–</span><input type=date value="${CR.to}" onchange="CR.to=this.value;if(CR.to<CR.from)CR.from=CR.to;render()"></div>`
+              : "";
         return (
           head("Laporan penjualan", "Sales") +
           `<div class=seg>${[
             [1, "Today"],
             [7, "7 days"],
             [30, "30 days"],
+            [0, "Custom"],
           ]
             .map(
               (r) =>
@@ -1583,7 +1630,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
                   r[0]
                 };render()">${r[1]}</button>`
             )
-            .join("")}</div>
+            .join("")}</div>${custom}
 <div class=g2><div class=st><small>Revenue</small><b>${rp(
             rev
           )}</b></div><div class=st><small>Transaction</small><b>${n}</b></div><div class=st><small>Item sold</small><b>${sum(
@@ -1592,6 +1639,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
           )}</b></div><div class=st><small>Average sale</small><b>${rp(
             n ? rev / n : 0
           )}</b></div></div>
+<h2>Diagram penjualan</h2>${chartHTML(l)}
 <h2>History order</h2><div class=card>${hist(l.slice().reverse())}</div>`
         );
       }
@@ -1809,6 +1857,28 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}<div class=acts>${
           )
           .join("")}</div></div></div>`;
       }
+      /* ---------- AUTOCOMPLETE CUSTOMER ---------- */
+      let SG = [];
+      function custList() {
+        const m = new Map();
+        S.orders.slice().sort((a, b) => a.ts - b.ts).forEach((o) => {
+          const n = (o.cust || "").trim();
+          if (!n) return;
+          const k = n.toLowerCase(), e = m.get(k) || { name: n, wa: "", n: 0 };
+          e.name = n; if (o.wa) e.wa = o.wa; e.n++; m.set(k, e);
+        });
+        return [...m.values()];
+      }
+      const hideSug = () => { const b = $("#cs"); if (b) b.innerHTML = ""; };
+      function custIn(v) {
+        D.cust = v;
+        const q = v.trim().toLowerCase(), box = $("#cs"), all = custList();
+        const ex = all.find((c) => c.name.toLowerCase() == q);
+        if (ex && ex.wa && !D.wa) { D.wa = ex.wa; const w = $("#cw"); if (w) w.value = ex.wa; }
+        SG = q ? all.filter((c) => c.name.toLowerCase().includes(q)).sort((a, b) => (b.name.toLowerCase().startsWith(q) ? 1 : 0) - (a.name.toLowerCase().startsWith(q) ? 1 : 0) || b.n - a.n).slice(0, 6) : [];
+        box.innerHTML = SG.map((c, i) => "<button onclick=\"pickCust(" + i + ")\"><b>" + esc(c.name) + "</b><small>" + esc(c.wa || "") + "</small></button>").join("");
+      }
+      function pickCust(i) { const c = SG[i]; if (!c) return; D.cust = c.name; if (c.wa) D.wa = c.wa; render(); }
       /* ---------- GOOGLE SHEET SYNC ---------- */
       let CFG = { url: "", key: "" };
       try { CFG = JSON.parse(localStorage.getItem("pos_cfg")) || CFG; } catch (e) {}
