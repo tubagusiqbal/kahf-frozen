@@ -1636,6 +1636,10 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
           1
         );
       /* ---------- SALES ---------- */
+      function LC(i) {
+        const p = (window.LCP || [])[i], el = document.getElementById("lcv");
+        if (p && el) el.innerHTML = "<b style=\"color:var(--tx)\">" + p.k + "</b> · " + rp(p.v);
+      }
       function chartHTML(l) {
         const tabs = [["rp", "Rupiah"], ["prod", "Product"], ["cust", "Customer"]];
         const sh = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1).replace(".0", "") + "jt" : n >= 1e3 ? Math.round(n / 1e3) + "rb" : String(n));
@@ -1643,18 +1647,60 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
         if (!l.length) body = "<div class=empty>Belum ada data pada periode ini</div>";
         else if (CH == "rp") {
           const hour = RG == 1,
-            span = RG == 0 ? Math.round((new Date(CR.to) - new Date(CR.from)) / 864e5) + 1 : RG,
+            span = RG == 0 ? Math.round((new Date(CR.to + "T00:00:00") - new Date(CR.from + "T00:00:00")) / 864e5) + 1 : RG,
             mon = !hour && span > 62,
-            m = new Map();
-          l.slice().sort((a, b) => a.ts - b.ts).forEach((o) => {
-            const d = new Date(o.ts);
-            const k = hour ? String(d.getHours()).padStart(2, "0") + ":00" : mon ? d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" }) : d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
-            m.set(k, (m.get(k) || 0) + o.total);
-          });
-          const mx = Math.max(...m.values(), 1);
-          body = '<div style="display:flex;align-items:flex-end;gap:8px;overflow-x:auto;padding-bottom:4px">' +
-            [...m].map(([k, v]) => '<div style="flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:170px"><small style="font-size:10px;color:var(--mu)">' + sh(v) + '</small><div style="width:70%;max-width:34px;border-radius:8px 8px 0 0;background:var(--pr);height:' + Math.max(3, (v / mx) * 110) + 'px;margin:4px 0"></div><small style="font-size:10px;color:var(--mu);white-space:nowrap">' + k + "</small></div>").join("") +
-            '</div><small style="color:var(--mu)">Total ' + rp(sum(l, (o) => o.total)) + " · per " + (hour ? "jam" : mon ? "bulan" : "hari") + "</small>";
+            pts = [],
+            idx = new Map(),
+            sorted = l.slice().sort((a, b) => a.ts - b.ts);
+          const lab = (d) => (hour ? String(d.getHours()).padStart(2, "0") + ":00" : mon ? d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" }) : d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" })),
+            key = (d) => (hour ? d.getHours() : mon ? d.getFullYear() * 12 + d.getMonth() : ymd(d));
+          let s, e;
+          if (hour) { s = new Date(sorted[0].ts); s.setMinutes(0, 0, 0); e = new Date(sorted[sorted.length - 1].ts); e.setMinutes(0, 0, 0); }
+          else if (RG == 0) { s = new Date(CR.from + "T00:00:00"); e = new Date(CR.to + "T00:00:00"); }
+          else { s = new Date(Date.now() - RG * 864e5); s.setHours(0, 0, 0, 0); e = new Date(); e.setHours(0, 0, 0, 0); }
+          if (mon) { s.setDate(1); e.setDate(1); }
+          // Isi periode kosong dengan 0 supaya garis tidak melompati hari/jam tanpa penjualan.
+          for (const d = new Date(s); d <= e; mon ? d.setMonth(d.getMonth() + 1) : hour ? d.setHours(d.getHours() + 1) : d.setDate(d.getDate() + 1)) {
+            idx.set(key(d), pts.length);
+            pts.push({ k: lab(d), v: 0 });
+          }
+          sorted.forEach((o) => { const i = idx.get(key(new Date(o.ts))); if (i != null) pts[i].v += o.total; });
+          window.LCP = pts;
+
+          const W = 360, H = 214, pl = 46, pr = 20, pt = 24, pb = 30, iw = W - pl - pr, ih = H - pt - pb, n = pts.length;
+          const mx0 = Math.max(...pts.map((p) => p.v), 1), pw = Math.pow(10, Math.floor(Math.log10(mx0))), fr = mx0 / pw;
+          const top = (fr <= 1 ? 1 : fr <= 2 ? 2 : fr <= 4 ? 4 : fr <= 8 ? 8 : 10) * pw;
+          const X = (i) => pl + (n > 1 ? (iw * i) / (n - 1) : iw / 2), Y = (v) => pt + ih - (v / top) * ih;
+          const fmt = (v) => (v >= 1e6 ? +(v / 1e6).toFixed(2) + "jt" : v >= 1e3 ? +(v / 1e3).toFixed(1) + "rb" : String(Math.round(v)));
+          const grid = [0, 1, 2, 3, 4].map((g) => { const y = Y((top * g) / 4); return '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y + '" y2="' + y + '" style="stroke:var(--mu);stroke-opacity:' + (g ? ".22" : ".5") + '"' + (g ? ' stroke-dasharray="3 4"' : "") + '/><text x="' + (pl - 6) + '" y="' + (y + 3.5) + '" text-anchor="end" style="font-size:10px;fill:var(--mu)">' + fmt((top * g) / 4) + "</text>"; }).join("");
+          const cnt = n <= 7 ? n : 5, show = new Set(Array.from({ length: cnt }, (_, j) => (cnt > 1 ? Math.round((j * (n - 1)) / (cnt - 1)) : 0)));
+          const xl = [...show].map((i) => '<text x="' + X(i) + '" y="' + (H - 9) + '" text-anchor="middle" style="font-size:10px;fill:var(--mu)">' + pts[i].k + "</text>").join("");
+          const curve = (() => {
+              // Kurva Bezier kubik monoton (Fritsch–Carlson): melengkung halus, tanpa melewati batas data (tidak turun di bawah 0).
+              if (n < 2) return "";
+              const xs = pts.map((p, i) => X(i)), ys = pts.map((p) => Y(p.v)), sl = [], m = [];
+              for (let i = 0; i < n - 1; i++) sl[i] = (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]);
+              m[0] = sl[0]; m[n - 1] = sl[n - 2];
+              for (let i = 1; i < n - 1; i++) m[i] = sl[i - 1] * sl[i] <= 0 ? 0 : (sl[i - 1] + sl[i]) / 2;
+              for (let i = 0; i < n - 1; i++) {
+                if (sl[i] == 0) { m[i] = 0; m[i + 1] = 0; continue; }
+                const a = m[i] / sl[i], b = m[i + 1] / sl[i], h = a * a + b * b;
+                if (h > 9) { const t = 3 / Math.sqrt(h); m[i] = t * a * sl[i]; m[i + 1] = t * b * sl[i]; }
+              }
+              let d = "M" + xs[0].toFixed(1) + "," + ys[0].toFixed(1);
+              for (let i = 0; i < n - 1; i++) {
+                const k = (xs[i + 1] - xs[i]) / 3;
+                d += "C" + (xs[i] + k).toFixed(1) + "," + (ys[i] + m[i] * k).toFixed(1) + " " + (xs[i + 1] - k).toFixed(1) + "," + (ys[i + 1] - m[i + 1] * k).toFixed(1) + " " + xs[i + 1].toFixed(1) + "," + ys[i + 1].toFixed(1);
+              }
+              return d;
+            })(),
+            area = n > 1 ? '<path d="' + curve + "L" + X(n - 1).toFixed(1) + "," + Y(0).toFixed(1) + "L" + X(0).toFixed(1) + "," + Y(0).toFixed(1) + 'Z" style="fill:var(--pr);fill-opacity:.12"/>' : "",
+            stroke = n > 1 ? '<path d="' + curve + '" fill="none" stroke-linejoin="round" stroke-linecap="round" style="stroke:var(--pr);stroke-width:2.5"/>' : "",
+            r = n > 31 ? 2 : 3.6,
+            dots = pts.map((p, i) => '<g onclick="LC(' + i + ')" style="cursor:pointer"><circle cx="' + X(i) + '" cy="' + Y(p.v) + '" r="14" fill="transparent"/><circle cx="' + X(i) + '" cy="' + Y(p.v) + '" r="' + r + '" style="fill:var(--cd);stroke:var(--pr);stroke-width:2"/>' + (n <= 7 && p.v > 0 ? '<text x="' + X(i) + '" y="' + (Y(p.v) - 9) + '" text-anchor="middle" style="font-size:10px;fill:var(--tx)">' + fmt(p.v) + "</text>" : "") + "<title>" + p.k + " · " + rp(p.v) + "</title></g>").join("");
+          body = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="Grafik garis penjualan dalam rupiah" style="display:block;max-width:100%;height:auto">' + grid + area + stroke + dots + xl + "</svg>" +
+            '<div id=lcv style="margin:6px 0 2px;font-size:13px;min-height:20px;color:var(--mu)">Ketuk titik untuk melihat nilainya</div>' +
+            '<small style="color:var(--mu)">Total ' + rp(sum(l, (o) => o.total)) + " · per " + (hour ? "jam" : mon ? "bulan" : "hari") + "</small>";
         } else {
           const m = new Map();
           if (CH == "prod")
