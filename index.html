@@ -1483,20 +1483,34 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
         go(R.mode == "popay" ? "sales" : "dash");
       };
       const getDL=async()=>{try{if(window.claude&&claude.use)return await claude.use("downloads")}catch(e){}return{save:async({filename,data})=>{const b=data instanceof Blob?data:new Blob([data]),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}}};
+      // function rTxt() {
+      //   const o = R.o, s = S.set, L = "━━━━━━━━━━━━━━";
+      //   let n = String(o.wa || "").replace(/\D/g, "");
+      //   if (n.startsWith("0")) n = "62" + n.slice(1);
+      //   const pay = !!o.method && o.method != "Cash";
+      //   let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n ${fdt(o.ts)}\n *${o.cust || "-"}*\n${L}\n*PESANAN*\n`;
+      //   t += o.items.map((i, k) => `${k + 1}. ${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
+      //   t += `\n${L}\n *TOTAL: ${rp(o.total)}*\n${R.mode == "po" ? "Status: Pre Order (belum dibayar)" : "Metode: " + o.method}`;
+      //   if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
+      //   // if (pay && s.qris) t += `\n${L}\n📱 *QRIS*\nScan gambar QRIS yang dikirim bersama pesan ini.`;
+      //   if (pay && s.banks.length) t += `\n${L}\n *TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
+      //   t += `\n${L}\nTerima kasih`;
+      //   return { n, t };
+      // }
+
       function rTxt() {
-        const o = R.o, s = S.set, L = "━━━━━━━━━━━━━━";
-        let n = String(o.wa || "").replace(/\D/g, "");
-        if (n.startsWith("0")) n = "62" + n.slice(1);
-        const pay = !!o.method && o.method != "Cash";
-        let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n ${fdt(o.ts)}\n *${o.cust || "-"}*\n${L}\n*PESANAN*\n`;
-        t += o.items.map((i, k) => `${k + 1}. ${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
-        t += `\n${L}\n *TOTAL: ${rp(o.total)}*\n${R.mode == "po" ? "Status: Pre Order (belum dibayar)" : "Metode: " + o.method}`;
-        if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
-        // if (pay && s.qris) t += `\n${L}\n📱 *QRIS*\nScan gambar QRIS yang dikirim bersama pesan ini.`;
-        if (pay && s.banks.length) t += `\n${L}\n *TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
-        t += `\n${L}\nTerima kasih`;
-        return { n, t };
-      }
+  const o = R.o, s = S.set, L = "━━━━━━━━━━━━━━";
+  let n = String(o.wa || "").replace(/\D/g, "");
+  if (n.startsWith("0")) n = "62" + n.slice(1);
+  const pay = !!o.method && o.method != "Cash";
+  let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n ${fdt(o.ts)}\n *${o.cust || "-"}*\n${L}\n*PESANAN*\n`;
+  t += o.items.map((i) => `${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
+  t += `\n${L}\n *TOTAL: ${rp(o.total)}*\n${R.mode == "po" ? "Status: Pre Order (belum dibayar)" : "Metode: " + o.method}`;
+  if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
+  if (pay && s.banks.length) t += `\n${L}\n *TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
+  t += `\n${L}\nTerima kasih`;
+  return { n, t };
+}
       function mkPDF() {
         const J = window.jspdf;
         if (!J) return null;
