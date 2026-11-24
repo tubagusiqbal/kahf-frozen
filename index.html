@@ -710,6 +710,7 @@
         wa: "",
         method: "Cash",
         cash: "",
+        ongkir: 0,
       });
       let V = "dash",
         PF = { q: "", f: "az" },
@@ -1135,6 +1136,7 @@ ${
           .filter(Boolean);
       };
       const cTotal = () => sum(cartItems(), (i) => i.qty * i.price);
+      const cGrand = () => cTotal() + (+D.ongkir || 0);
       function setQ(id, d) {
         const p = S.prods.find((x) => x.id == id),
           q = Math.max(0, Math.min(p.stock, (D.cart[id] || 0) + d));
@@ -1259,7 +1261,7 @@ ${
               it.length ? "" : "disabled"
             } onclick="D.step=3;render()">Continue to Payment</button><button class=bt2 onclick="D.step=1;render()">Kembali</button>`
           );
-        const t = cTotal(),
+        const t = cGrand(),
           s = S.set,
           ch = Math.max(0, (+D.cash || 0) - t);
         return (
@@ -1305,7 +1307,17 @@ ${
       : "<div class=empty>Rekening belum diatur di Setting</div>"
     : ""
 }</div>
-<div class=card style="margin-top:14px"><div class="row"><span class=sp>Total order</span><b>${rp(
+<div class=card style="margin-top:14px"><button class=bt2 style="margin-top:0;margin-bottom:12px" onclick="ongkirDlg('D')">🚚 Ongkir${
+            +D.ongkir ? " · " + rp(+D.ongkir) + " (ubah)" : " (input manual)"
+          }</button>${
+            +D.ongkir
+              ? `<div class=row style="margin-bottom:6px"><span class=sp>Subtotal</span><b>${rp(
+                  cTotal()
+                )}</b></div><div class=row style="margin-bottom:6px"><span class=sp>Ongkir</span><b>${rp(
+                  +D.ongkir
+                )}</b></div>`
+              : ""
+          }<div class="row"><span class=sp>Total order</span><b>${rp(
             t
           )}</b></div>${
             D.method == "Cash"
@@ -1320,7 +1332,7 @@ ${
         );
       }
       function toReceipt() {
-        const t = cTotal();
+        const t = cGrand();
         if (D.method == "Cash" && (+D.cash || 0) < t)
           return toast("Uang diterima kurang dari total");
         openR(
@@ -1332,13 +1344,46 @@ ${
             wa: D.wa,
             method: D.method,
             cash: +D.cash || 0,
+            ongkir: +D.ongkir || 0,
             items: cartItems(),
           },
           "new"
         );
       }
       /* ---------- RECEIPT ---------- */
-      const rT = (o) => sum(o.items, (i) => i.qty * i.price);
+      const rT = (o) => sum(o.items, (i) => i.qty * i.price) + (+o.ongkir || 0);
+      /* harga normal/reseller otomatis mengikuti total qty per kategori */
+      function reprice(o) {
+        const cq = {};
+        o.items.forEach((i) => {
+          const p = S.prods.find((x) => x.id == i.pid);
+          i._c = p ? p.cat : i.cat;
+          cq[i._c] = (cq[i._c] || 0) + i.qty;
+        });
+        o.items.forEach((i) => {
+          const p = S.prods.find((x) => x.id == i.pid);
+          if (p) {
+            const rs = o.type == "Reseller" || S.rules.some((r) => (!r.cat || r.cat == i._c) && cq[i._c] >= r.min);
+            i.price = rs && p.reseller ? p.reseller : p.price;
+            i.rs = rs && p.reseller < p.price;
+          }
+          delete i._c;
+        });
+      }
+      /* ---------- ONGKIR ---------- */
+      let OT = "D";
+      function ongkirDlg(t) {
+        OT = t;
+        const v = +(t == "D" ? D : R.o).ongkir || 0;
+        $("#dlg").innerHTML = `<div class=ov style="align-items:center"><div class=dlg style="max-width:400px"><h3>🚚 Ongkir</h3><label>Biaya ongkir (Rp)</label><input id=ongin type=number inputmode=numeric min=0 placeholder="0" value="${v || ""}"><button class=bt onclick=saveOngkir()>Simpan</button><button class=bt2 onclick="$('#ongin').value='';saveOngkir()">Hapus ongkir</button><button class=bt2 onclick=dc()>Batal</button></div></div>`;
+        setTimeout(() => { const e = $("#ongin"); e && e.focus(); }, 50);
+      }
+      function saveOngkir() {
+        const v = Math.max(0, +$("#ongin").value || 0);
+        dc();
+        if (OT == "D") { D.ongkir = v; render(); }
+        else { R.o.ongkir = v; drawR(); }
+      }
       function openR(o, mode) {
         R = { o: JSON.parse(JSON.stringify(o)), mode, done: false };
         drawR();
@@ -1369,7 +1414,7 @@ ${o.items
       }</span><span>${rp(i.qty * i.price)}</span></div>`
   )
   .join("")}<hr>
-<div class="rw"><b>TOTAL</b><b>${rp(
+${(+o.ongkir || 0) > 0 ? `<div class=rw><span>Subtotal</span><span>${rp(o.total - o.ongkir)}</span></div><div class=rw><span>Ongkir</span><span>${rp(o.ongkir)}</span></div>` : ""}<div class="rw"><b>TOTAL</b><b>${rp(
           o.total
         )}</b></div>${R.mode == "po" ? "<div class=rw><span>Status</span><span>PO · belum dibayar</span></div>" : `<div class=rw><span>Metode</span><span>${o.method}</span></div>`}${
           o.method == "Cash"
@@ -1389,7 +1434,7 @@ ${
             ? `<hr><img src="${s.qris}" style="width:60%;display:block;margin:auto">`
             : ""
         }<hr><div class=c>Terima kasih</div></div>
-${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class=bt2 style="color:var(--pr);border-color:var(--pr)" onclick=addMenu()>${ic("plus", 16)} Tambah menu</button>` : ""}<div class=acts>${
+${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class=bt2 style="color:var(--pr);border-color:var(--pr)" onclick=addMenu()>${ic("plus", 16)} Tambah menu</button><button class=bt2 onclick="ongkirDlg('R')">🚚 Ongkir${+o.ongkir ? " · " + rp(+o.ongkir) : ""}</button>` : ""}<div class=acts>${
           R.done
             ? "<button class=bt onclick=rDone()>Selesai</button>"
             : R.mode == "po"
@@ -1431,6 +1476,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
             rs = o.type == "Reseller" || S.rules.some((r) => (!r.cat || r.cat == p.cat) && cq >= r.min);
           o.items.push({ pid: p.id, name: p.name, cat: p.cat, qty: 1, price: rs && p.reseller ? p.reseller : p.price, rs: rs && p.reseller < p.price });
         }
+        reprice(o);
         drawR();
         drawAM();
       }
@@ -1439,6 +1485,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
         if (d > 0 && p && availQ(p) <= 0) return toast("Stok tidak cukup");
         i.qty += d;
         if (i.qty < 1) R.o.items.splice(n, 1);
+        reprice(R.o);
         drawR();
         if ($("#aml")) drawAM();
       }
@@ -1505,6 +1552,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
   const pay = !!o.method && o.method != "Cash";
   let t = `❄️ *${s.name}*\n` + (s.addr ? `📍 ${s.addr}\n` : "") + `${L}\nStruk #${o.id}\n ${fdt(o.ts)}\n *${o.cust || "-"}*\n${L}\n*PESANAN*\n`;
   t += o.items.map((i) => `${i.name}\n    ${i.qty} x ${rp(i.price)} = *${rp(i.qty * i.price)}*`).join("\n");
+  if ((+o.ongkir || 0) > 0) t += `\n${L}\nOngkir: *${rp(o.ongkir)}*`;
   t += `\n${L}\n *TOTAL: ${rp(o.total)}*\n${R.mode == "po" ? "Status: Pre Order (belum dibayar)" : "Metode: " + o.method}`;
   if (o.method == "Cash") t += `\nTunai: ${rp(o.cash)}\nKembali: ${rp(o.change)}`;
   if (pay && s.banks.length) t += `\n${L}\n *TRANSFER KE*\n` + s.banks.map((b) => `${b.bank}\n${b.rek}\na.n. ${b.an}`).join("\n\n");
@@ -1521,6 +1569,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
           rows.push([i.name, ""]);
           rows.push(["  " + i.qty + " x " + rp(i.price), rp(i.qty * i.price)]);
         });
+        if ((+o.ongkir || 0) > 0) rows.push(["Ongkir", rp(o.ongkir)]);
         const ex = [
           ["TOTAL", rp(o.total)],
           R.mode == "po" ? ["Status", "PO belum dibayar"] : ["Metode", o.method],
@@ -1967,7 +2016,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
         const it = cartItems();
         if (!it.length) return;
         if (!D.cust.trim()) return toast("Isi nama customer untuk PO");
-        const o = { id: S.seq + 1, ts: Date.now(), cust: D.cust.trim(), type: D.type, wa: D.wa, method: "", cash: 0, items: it, total: sum(it, (i) => i.qty * i.price), status: "po" };
+        const o = { id: S.seq + 1, ts: Date.now(), cust: D.cust.trim(), type: D.type, wa: D.wa, method: "", cash: 0, items: it, ongkir: +D.ongkir || 0, total: sum(it, (i) => i.qty * i.price) + (+D.ongkir || 0), status: "po" };
         S.seq = o.id;
         o.items.forEach((i) => { const p = S.prods.find((x) => x.id == i.pid); if (p) p.stock -= i.qty; });
         S.orders.push(o);
