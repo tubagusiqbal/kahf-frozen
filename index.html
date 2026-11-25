@@ -1964,112 +1964,112 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
               .join("") || "<div class=empty>Belum ada aturan</div>"
           }</div><small style="color:var(--mu);display:block;margin-top:10px">Customer tipe Reseller selalu memakai harga reseller.</small></div>
 <div class=card style="margin-top:14px"><b>Database Google Sheet</b><small style="color:var(--mu);display:block;margin:6px 0">Data tersimpan di Google Sheet dan sinkron antar perangkat.</small><label>URL Web App (Apps Script)</label><input id=cu value="${esc(CFG.url)}" placeholder="https://script.google.com/macros/s/.../exec"><label>Kode rahasia</label><input id=ck type=password value="${esc(CFG.key)}"><button class=bt onclick=cloudConnect()>Hubungkan &amp; Sinkron</button>${CFG.url?`<button class=bt2 onclick=cloudPull()>Sinkron sekarang</button><button class=bt2 onclick=cloudOff()>Putuskan</button>`:''}<small id=syncst style="display:block;margin-top:10px;color:var(--mu)">${esc(SYNC.msg)}</small></div>
-<div class=card style="margin-top:14px"><b>Backup database</b><small style="color:var(--mu);display:block;margin:6px 0">${
-            bakTs()
-              ? "Backup lokal terakhir: " + fdt(bakTs())
-              : "Belum ada backup lokal"
-          }</small><button class=bt onclick=doBackup()>Simpan backup</button>${
-            bakTs()
-              ? `<button class=bt2 onclick=restoreLocal()>Restore backup lokal</button>`
-              : ""
-          }<label>Restore dari file backup (.json)</label><input type=file accept=".json,application/json" onchange="restoreFile(this.files[0])"></div>`
-        );
-      }
-      const addBank = () => {
-          S.set.banks.push({ bank: "", rek: "", an: "" });
-          save();
-          render();
-        },
-        delBank = (i) => {
-          S.set.banks.splice(i, 1);
-          save();
-          render();
-        },
-        addRule = () => {
-          S.rules.push({ cat: "", min: 5 });
-          save();
-          render();
-        },
-        delRule = (i) => {
-          S.rules.splice(i, 1);
-          save();
-          render();
-        };
-      const bakTs = () => {
-        try {
-          return JSON.parse(localStorage.getItem("pos_bak")).ts;
-        } catch (e) {
-          return 0;
-        }
-      };
-      async function doBackup() {
-        const d = JSON.stringify({ ts: Date.now(), data: S });
-        let ok = 1;
-        try {
-          localStorage.setItem("pos_bak", d);
-        } catch (e) {
-          ok = 0;
-          toast("Backup lokal gagal (penyimpanan penuh)");
-        }
-        let dl = null;
-        try {
-          dl = await getDL();
-        } catch (e) {}
-        if (dl) {
-          try {
-            await dl.save({
-              filename:
-                "backup-pos-" + new Date().toISOString().slice(0, 10) + ".json",
-              data: d,
-            });
-            toast("Backup disimpan");
-          } catch (e) {
-            if (e.code != "declined") toast("Gagal menyimpan file");
-          }
-        } else if (ok) toast("Backup lokal tersimpan");
-        render();
-      }
-      function applyBak(d) {
-        if (
-          !d ||
-          !d.data ||
-          !Array.isArray(d.data.prods) ||
-          !Array.isArray(d.data.orders)
-        )
-          return toast("File backup tidak valid");
-        ask(
-          "Restore backup? Data saat ini akan diganti.",
-          "",
-          () => {
-            S = { ...def(), ...d.data };
-            fix();
-            save();
-            applyTheme();
-            toast("Database dipulihkan");
-            render();
-          },
-          "Restore"
-        );
-      }
-      const restoreLocal = () => {
-        try {
-          applyBak(JSON.parse(localStorage.getItem("pos_bak")));
-        } catch (e) {
-          toast("Backup lokal tidak ada");
-        }
-      };
-      function restoreFile(f) {
-        if (!f) return;
-        const r = new FileReader();
-        r.onload = () => {
-          try {
-            applyBak(JSON.parse(r.result));
-          } catch (e) {
-            toast("File backup tidak valid");
-          }
-        };
-        r.readAsText(f);
-      }
+// <div class=card style="margin-top:14px"><b>Backup database</b><small style="color:var(--mu);display:block;margin:6px 0">${
+//             bakTs()
+//               ? "Backup lokal terakhir: " + fdt(bakTs())
+//               : "Belum ada backup lokal"
+//           }</small><button class=bt onclick=doBackup()>Simpan backup</button>${
+//             bakTs()
+//               ? `<button class=bt2 onclick=restoreLocal()>Restore backup lokal</button>`
+//               : ""
+//           }<label>Restore dari file backup (.json)</label><input type=file accept=".json,application/json" onchange="restoreFile(this.files[0])"></div>`
+//         );
+//       }
+//       const addBank = () => {
+//           S.set.banks.push({ bank: "", rek: "", an: "" });
+//           save();
+//           render();
+//         },
+//         delBank = (i) => {
+//           S.set.banks.splice(i, 1);
+//           save();
+//           render();
+//         },
+//         addRule = () => {
+//           S.rules.push({ cat: "", min: 5 });
+//           save();
+//           render();
+//         },
+//         delRule = (i) => {
+//           S.rules.splice(i, 1);
+//           save();
+//           render();
+//         };
+//       const bakTs = () => {
+//         try {
+//           return JSON.parse(localStorage.getItem("pos_bak")).ts;
+//         } catch (e) {
+//           return 0;
+//         }
+//       };
+//       async function doBackup() {
+//         const d = JSON.stringify({ ts: Date.now(), data: S });
+//         let ok = 1;
+//         try {
+//           localStorage.setItem("pos_bak", d);
+//         } catch (e) {
+//           ok = 0;
+//           toast("Backup lokal gagal (penyimpanan penuh)");
+//         }
+//         let dl = null;
+//         try {
+//           dl = await getDL();
+//         } catch (e) {}
+//         if (dl) {
+//           try {
+//             await dl.save({
+//               filename:
+//                 "backup-pos-" + new Date().toISOString().slice(0, 10) + ".json",
+//               data: d,
+//             });
+//             toast("Backup disimpan");
+//           } catch (e) {
+//             if (e.code != "declined") toast("Gagal menyimpan file");
+//           }
+//         } else if (ok) toast("Backup lokal tersimpan");
+//         render();
+//       }
+//       function applyBak(d) {
+//         if (
+//           !d ||
+//           !d.data ||
+//           !Array.isArray(d.data.prods) ||
+//           !Array.isArray(d.data.orders)
+//         )
+//           return toast("File backup tidak valid");
+//         ask(
+//           "Restore backup? Data saat ini akan diganti.",
+//           "",
+//           () => {
+//             S = { ...def(), ...d.data };
+//             fix();
+//             save();
+//             applyTheme();
+//             toast("Database dipulihkan");
+//             render();
+//           },
+//           "Restore"
+//         );
+//       }
+//       const restoreLocal = () => {
+//         try {
+//           applyBak(JSON.parse(localStorage.getItem("pos_bak")));
+//         } catch (e) {
+//           toast("Backup lokal tidak ada");
+//         }
+//       };
+//       function restoreFile(f) {
+//         if (!f) return;
+//         const r = new FileReader();
+//         r.onload = () => {
+//           try {
+//             applyBak(JSON.parse(r.result));
+//           } catch (e) {
+//             toast("File backup tidak valid");
+//           }
+//         };
+//         r.readAsText(f);
+//       }
       function iconPick() {
         $(
           "#dlg"
