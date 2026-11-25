@@ -1212,7 +1212,7 @@ ${
             const p = S.prods.find((x) => x.id == id);
             return `<div class=cbi>${p.photo ? `<img src="${p.photo}">` : "📦"}<b>${q}</b></div>`;
           })
-          .join("")}</div><button id=cb class=bt onclick="D.step=2;render()" ${n ? "" : "disabled"}>Continue to Quantity${n ? ` (${n})` : ""}</button></div>`;
+          .join("")}</div><button id=cb class=bt onclick="D.step=2;render()" ${n ? "" : "disabled"}>Cart${n ? ` (${n})` : ""}</button></div>`;
       };
       const drawOL = () => {
         $("#ol").innerHTML = olist();
