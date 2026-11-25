@@ -1964,7 +1964,7 @@ ${R.done ? "<div class=ok>✓ Pesanan berhasil</div>" : ""}${ed ? `<button class
               .join("") || "<div class=empty>Belum ada aturan</div>"
           }</div><small style="color:var(--mu);display:block;margin-top:10px">Customer tipe Reseller selalu memakai harga reseller.</small></div>
 <div class=card style="margin-top:14px"><b>Database Google Sheet</b><small style="color:var(--mu);display:block;margin:6px 0">Data tersimpan di Google Sheet dan sinkron antar perangkat.</small><label>URL Web App (Apps Script)</label><input id=cu value="${esc(CFG.url)}" placeholder="https://script.google.com/macros/s/.../exec"><label>Kode rahasia</label><input id=ck type=password value="${esc(CFG.key)}"><button class=bt onclick=cloudConnect()>Hubungkan &amp; Sinkron</button>${CFG.url?`<button class=bt2 onclick=cloudPull()>Sinkron sekarang</button><button class=bt2 onclick=cloudOff()>Putuskan</button>`:''}<small id=syncst style="display:block;margin-top:10px;color:var(--mu)">${esc(SYNC.msg)}</small></div>
-${/*<div class=card style="margin-top:14px"><b>Backup database</b><small style="color:var(--mu);display:block;margin:6px 0"> ${
+<div class=card style="margin-top:14px"><b>Backup database</b><small style="color:var(--mu);display:block;margin:6px 0"> ${
             bakTs()
               ? "Backup lokal terakhir: " + fdt(bakTs())
               : "Belum ada backup lokal"
@@ -1974,7 +1974,7 @@ ${/*<div class=card style="margin-top:14px"><b>Backup database</b><small style="
               : ""
           }<label>Restore dari file backup (.json)</label><input type=file accept=".json,application/json" onchange="restoreFile(this.files[0])"></div>`
         );
-      }*/ ""}
+      }
       const addBank = () => {
           S.set.banks.push({ bank: "", rek: "", an: "" });
           save();
